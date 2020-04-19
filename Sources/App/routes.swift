@@ -12,10 +12,6 @@ public func routes(_ router: Router) throws {
 //            return "Hello nameless!"
 //        }
     }
-
-    router.get("hello", "justin") { req -> String in
-      return "Hello Justin!"
-    }
     
     router.get { req in
         return "It works Sarah!"
@@ -33,19 +29,16 @@ public func routes(_ router: Router) throws {
     router.delete("todos", Todo.parameter, use: todoController.delete)
     
     
-    // Justins stuff (Ray W)
-    router.post(PlayerInfo.self, at: "addPlayer") { req, data -> String in
-        playerNames.append(data.name)
-        var allNames = ""
-        for name in playerNames {
-            allNames = allNames + name + " "
-        }
-        return "Hello \(data.name)!   All players: \(allNames)"
+
+    router.post(PlayerCreationInfo.self, at: "addPlayer") { req, data -> PlayerCreationInfoResponse in
+        let newPlayer = Player(playerCreationInfo: data)
+        players.append(newPlayer)
+        
+        let response = PlayerCreationInfoResponse(allPlayers: players)
+        return response
     }
 }
 
-var playerNames = [String]()
+var players = [Player]()
 
-struct PlayerInfo: Content {
- let name: String
-}
+
