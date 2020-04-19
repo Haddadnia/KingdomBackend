@@ -30,15 +30,33 @@ public func routes(_ router: Router) throws {
     
     
 
-    router.post(PlayerCreationInfo.self, at: "addPlayer") { req, data -> PlayerCreationInfoResponse in
+    router.post(PlayerCreationInfo.self, at: "addPlayer") { req, data -> Game in
         let newPlayer = Player(playerCreationInfo: data)
         players.append(newPlayer)
-        
-        let response = PlayerCreationInfoResponse(allPlayers: players)
-        return response
+        let game = handleNewPlayer(player: newPlayer, toGame: data.gameCode)
+        games[game.code] = game
+        return game
+//        let response = PlayerCreationInfoResponse(allPlayers: players)
+//        return response
+    }
+    
+    func handleNewPlayer(player: Player, toGame gameCode: String?) -> Game {
+        player.playerID = randomString(length: 20)
+        if let gameCode = gameCode,
+            var game = games[gameCode] {
+            game.addPlayer(player)
+            return game
+        } else {
+            return Game.gameFromPlayer(player)
+        }
     }
 }
 
 var players = [Player]()
+var games = [String: Game]()
 
+func randomString(length: Int) -> String {
+  let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  return String((0..<length).map{ _ in letters.randomElement()! })
+}
 

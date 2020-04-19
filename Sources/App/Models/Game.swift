@@ -6,14 +6,15 @@
 //
 
 import Foundation
+import Vapor
 
-enum GameState {
-    case lobby
-    case playing
-    case postGame
+enum GameState: String, Codable {
+    case lobby = "lobby"
+    case playing = "playing"
+    case postGame = "postGame"
 }
 
-struct Game {
+struct Game: Content {
 
     //setup
     var host: Player
@@ -27,9 +28,25 @@ struct Game {
     
     //gameplay
     var guessingPlayer: Player
+    
+    mutating func addPlayer(_ player: Player) {
+        players.append(player)
+        words.append(player.word)
+    }
+    
+    static func gameFromPlayer(_ player: Player) -> Game {
+        let game = Game(host: player,
+                        gameState: .lobby,
+                        code: randomString(length: 5),
+                        players: [player],
+                        teams: [Team](),
+                        words: [player.word],
+                        guessingPlayer: player)
+        return game
+    }
 }
 
-struct Team {
+struct Team: Codable {
     var teamName: String
     let leader: Player
     var players: [Player]
